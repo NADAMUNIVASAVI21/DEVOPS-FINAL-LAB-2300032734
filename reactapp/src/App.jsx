@@ -2,44 +2,41 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
-  const BASE_URL = "http://localhost:2000/applicant";
+  const BASE_URL = "http://localhost:2000/course";
 
-  const [applicants, setApplicants] = useState([]);
-  const [newApplicant, setNewApplicant] = useState({
-    name: "",
-    email: "",
-    position: ""
+  const [courses, setCourses] = useState([]);
+  const [newCourse, setNewCourse] = useState({
+    title: "",
+    faculty: "",
+    credits: ""
   });
 
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState(null);
 
-  // Load Applicants
-  const loadApplicants = async () => {
+  const loadCourses = async () => {
     const res = await fetch(`${BASE_URL}/viewall`);
     const data = await res.json();
-    setApplicants(data);
+    setCourses(data);
   };
 
   useEffect(() => {
-    loadApplicants();
+    loadCourses();
   }, []);
 
-  // Add Applicant
-  const addApplicant = async () => {
+  const addCourse = async () => {
     await fetch(`${BASE_URL}/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newApplicant)
+      body: JSON.stringify(newCourse)
     });
 
-    alert("Applicant Added!");
-    setNewApplicant({ name: "", email: "", position: "" });
-    loadApplicants();
+    alert("Course Added!");
+    setNewCourse({ title: "", faculty: "", credits: "" });
+    loadCourses();
   };
 
-  // Search
-  const searchApplicant = async () => {
+  const searchCourse = async () => {
     try {
       const res = await fetch(`${BASE_URL}/search/${searchId}`);
 
@@ -55,115 +52,99 @@ function App() {
       } else {
         setSearchResult(data);
       }
-    } catch (err) {
+    } catch (error) {
       setSearchResult("NOT_FOUND");
     }
   };
 
   return (
-    <div className="app-wrapper">
-      <h1 className="header">Job Applicant Management</h1>
+    <div className="container">
+      <h1 className="title">Course Management</h1>
 
-      {/* Add Applicant */}
-      <div className="glass-card">
-        <h2 className="section-title">Add New Applicant</h2>
+      {/* Add Course */}
+      <div className="card">
+        <h2>Add Course</h2>
 
         <input
-          className="field"
           type="text"
-          placeholder="Full Name"
-          value={newApplicant.name}
-          onChange={(e) =>
-            setNewApplicant({ ...newApplicant, name: e.target.value })
-          }
+          placeholder="Course Title"
+          className="input"
+          value={newCourse.title}
+          onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
         />
 
         <input
-          className="field"
-          type="email"
-          placeholder="Email Address"
-          value={newApplicant.email}
-          onChange={(e) =>
-            setNewApplicant({ ...newApplicant, email: e.target.value })
-          }
-        />
-
-        <input
-          className="field"
           type="text"
-          placeholder="Position Applied"
-          value={newApplicant.position}
-          onChange={(e) =>
-            setNewApplicant({ ...newApplicant, position: e.target.value })
-          }
+          placeholder="Faculty Name"
+          className="input"
+          value={newCourse.faculty}
+          onChange={(e) => setNewCourse({ ...newCourse, faculty: e.target.value })}
         />
 
-        <button className="primary-btn" onClick={addApplicant}>
-          Add Applicant
-        </button>
+        <input
+          type="number"
+          placeholder="Credits"
+          className="input"
+          value={newCourse.credits}
+          onChange={(e) => setNewCourse({ ...newCourse, credits: e.target.value })}
+        />
+
+        <button className="btn" onClick={addCourse}>Add Course</button>
       </div>
 
-      {/* View Applicants */}
-      <div className="glass-card">
-        <div className="flex-header">
-          <h2 className="section-title">All Applicants</h2>
-          <button className="secondary-btn" onClick={loadApplicants}>
-            Refresh
-          </button>
-        </div>
+      {/* View All */}
+      <div className="card">
+        <h2>All Courses</h2>
+        <button className="btn" onClick={loadCourses}>Refresh</button>
 
-        <table className="styled-table">
+        <table className="table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Position</th>
+              <th>Title</th>
+              <th>Faculty</th>
+              <th>Credits</th>
             </tr>
           </thead>
           <tbody>
-            {applicants.map((a) => (
-              <tr key={a.id}>
-                <td>{a.id}</td>
-                <td>{a.name}</td>
-                <td>{a.email}</td>
-                <td>{a.position}</td>
+            {courses.map((c) => (
+              <tr key={c.id}>
+                <td>{c.id}</td>
+                <td>{c.title}</td>
+                <td>{c.faculty}</td>
+                <td>{c.credits}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Search Applicant */}
-      <div className="glass-card">
-        <h2 className="section-title">Search Applicant</h2>
+      {/* Search */}
+      <div className="card">
+        <h2>Search Course by ID</h2>
 
-        <div className="search-row">
-          <input
-            className="field"
-            type="number"
-            placeholder="Enter ID"
-            value={searchId}
-            onChange={(e) => setSearchId(e.target.value)}
-          />
+        <input
+          type="number"
+          placeholder="Enter Course ID"
+          className="input"
+          value={searchId}
+          onChange={(e) => setSearchId(e.target.value)}
+        />
 
-          <button className="primary-btn" onClick={searchApplicant}>
-            Search
-          </button>
-        </div>
+        <button className="btn" onClick={searchCourse}>Search</button>
 
         {searchResult && (
-          <div className="result-box">
+          <div className="search-box">
             <h3>Search Result:</h3>
 
             {searchResult === "NOT_FOUND" ? (
-              <p className="error-msg">❌ Applicant Not Found</p>
+              <p className="error-text">⚠️ Record Not Found</p>
             ) : (
               <ul>
-                <li><b>ID:</b> {searchResult.id}</li>
-                <li><b>Name:</b> {searchResult.name}</li>
-                <li><b>Email:</b> {searchResult.email}</li>
-                <li><b>Position:</b> {searchResult.position}</li>
+                <li>ID: {searchResult.id}</li>
+                <li>Title: {searchResult.title}</li>
+                <li>Faculty: {searchResult.faculty}</li>
+                <li>Credits: {searchResult.credits}</li>
               </ul>
             )}
           </div>
